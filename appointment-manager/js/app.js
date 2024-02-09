@@ -38,7 +38,7 @@ class UI{
         if (arregloPacientes.length === 0){
             // eliminamos el h2 de administrar 
             tituloAdministra.style.display = 'none';
-            // creando un nuevo li
+            // creando un nuevo div
             const h3 = document.createElement('H3');
             h3.textContent = 'No hay citas, comienza creando una';
             citasView.appendChild(h3);
@@ -48,30 +48,67 @@ class UI{
 
         arregloPacientes.forEach((paciente) => {
 
-            const {nombreMascota, propietario , id } = paciente;
+            const {nombreMascota, propietario, telefono,fecha, hora, sintomas , id } = paciente;
 
-            // creando un nuevo li
-            const li = document.createElement('LI');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center' ;
+            // creando un nuevo div
+            const div = document.createElement('DIV');
+            div.classList.add('cita', 'p-3');
 
             // creando el HTML
-            li.textContent = `${propietario}`;
+            const mascotaTitulo = document.createElement('h2');
+            mascotaTitulo.classList.add('card-title', 'font-weight-bolder');
+            mascotaTitulo.textContent = nombreMascota;
+
+            const propietarioParrafo = document.createElement('P');
+            propietarioParrafo.innerHTML = `
+                <span class="font-weight-bolder">Propietario: </span> ${propietario}
+            `;
+
+            const telefonoParrafo = document.createElement('P');
+            telefonoParrafo.innerHTML = `
+                <span class="font-weight-bolder">Telefono: </span> ${telefono}
+            `;
+
+            const fechaParrafo = document.createElement('P');
+            fechaParrafo.innerHTML = `
+                <span class="font-weight-bolder">Fecha: </span> ${fecha}
+            `;
+
+            const horaParrafo = document.createElement('P');
+            horaParrafo.innerHTML = `
+                <span class="font-weight-bolder">Hora: </span> ${hora}
+            `;
+
+            const sintomasParrafo = document.createElement('P');
+            sintomasParrafo.innerHTML = `
+                <span class="font-weight-bolder">Sintomas: </span> ${sintomas}
+            `;
+
+            //agregarndo los parrafos al div
+            div.appendChild(mascotaTitulo)
+            div.appendChild(propietarioParrafo)
+            div.appendChild(telefonoParrafo)
+            div.appendChild(fechaParrafo)
+            div.appendChild(horaParrafo)
+            div.appendChild(sintomasParrafo)
+
+
 
             // Creando los botones 
             const eliminarBtn = document.createElement('button');
             eliminarBtn.classList.add("btn",  "btn-outline-danger");
             eliminarBtn.textContent = 'x';
             eliminarBtn.onclick = () => eliminarPacienteBtn(id) ;
-            li.appendChild(eliminarBtn);
+            div.appendChild(eliminarBtn);
 
             const editarBtn = document.createElement('button');
             editarBtn.classList.add("btn", "btn-outline-primary")
             editarBtn.textContent = 'Editar';
             editarBtn.onclick= () => editarPacienteBtn(id);
-            li.appendChild(editarBtn);
+            div.appendChild(editarBtn);
 
             // agregando a la vista
-            citasView.appendChild(li);
+            citasView.appendChild(div);
         })
     }
 
