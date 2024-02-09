@@ -10,7 +10,13 @@ const sintomasInput =document.querySelector('#sintomas');
 const contenido = document.querySelector('#contenido');
 const contenidoPadre = document.querySelector('.container');
 const tituloAdministra = document.querySelector('#administra');
+const agregarCitaBtn = document.querySelector('button[type="submit"]')
 
+// modelo de cita 
+let idVigente;
+
+// modo edicion 
+let modoEdicion;
 //clases 
 
 class UI{
@@ -22,6 +28,8 @@ class UI{
         
         if (tipo === 'error'){
             divAlerta.classList.add('alert-danger');
+        }else{
+            divAlerta.classList.add('alert-success');
         }
 
         contenidoPadre.insertBefore(divAlerta, contenido);
@@ -104,7 +112,7 @@ class UI{
             const editarBtn = document.createElement('button');
             editarBtn.classList.add("btn", "btn-outline-primary")
             editarBtn.textContent = 'Editar';
-            editarBtn.onclick= () => editarPacienteBtn(id);
+            editarBtn.onclick= () => editarPacienteBtn(paciente);
             div.appendChild(editarBtn);
 
             // agregando a la vista
@@ -133,6 +141,7 @@ class Paciente{
     }
 
     agregarPaciente(pacienteObj){
+
         this.pacientes = [...this.pacientes, pacienteObj];
         console.log(this.pacientes);
     }
@@ -140,6 +149,10 @@ class Paciente{
     eliminarPaciente(id){
         this.pacientes = this.pacientes.filter((paciente) => paciente.id !== id );
         console.log(this.pacientes)
+    }
+
+    editarCita(citaActualizada){
+        this.pacientes = this.pacientes.map((cita) => cita.id === citaActualizada.idVigente ? citaActualizada : cita)
     }
 }
 
@@ -180,11 +193,22 @@ function crearCita(e){
         ui.mostrarAlerta('Todos los campos son obligatorios', 'error');
         return;
     }
-    // 
+    
     const paciente = { nombreMascota, propietario, telefono, fecha, hora, sintomas,id}
 
-    pacienteNuevo.agregarPaciente(paciente)
+    // modo edicion 
+    if (modoEdicion){
 
+        const pacienteActualizado = { nombreMascota, propietario, telefono, fecha, hora, sintomas,idVigente}
+        pacienteNuevo.editarCita(pacienteActualizado)
+        ui.mostrarAlerta('Se ha editado correctamente', 'success');
+        modoEdicion = false;
+        
+    }else{
+        pacienteNuevo.agregarPaciente(paciente)
+    }
+
+    
     //extraer el arreglo de pacientes de la nueva instancia 
     const {pacientes} = pacienteNuevo;
 
@@ -203,6 +227,27 @@ function eliminarPacienteBtn(id){
     ui.listarPacientes(pacientes);
 }
 
-function editarPacienteBtn(id){
-    console.log('editando...')
+function editarPacienteBtn(cita){
+    modoEdicion = true;
+
+    const {nombreMascota, propietario, telefono,fecha, hora, sintomas, id} = cita;
+
+    // llenando los inputs del formulario con los datos de la cita
+    nombreMascotaInput.value = nombreMascota;
+    propietarioInput.value = propietario;
+    telefonoInput.value = telefono; 
+    fechaInput.value = fecha; 
+    horaInput.value = hora; 
+    sintomasInput.value = sintomas;
+
+    //extraemos el id en el objeto de prueba
+    idVigente = id;
+
+    
+    // cambiar el texto del boton de crear cita -> editar cita
+    agregarCitaBtn.textContent = 'Editar Cita'
+
+    agregarCitaBtn.addEventListener('click', () => agregarCitaBtn.textContent = 'Crear cita');
+    
+
 }
