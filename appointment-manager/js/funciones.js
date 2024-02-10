@@ -98,8 +98,22 @@ export function crearCita(e){
 }
 
 export function eliminarPacienteBtn(id){
-    pacienteNuevo.eliminarPaciente(id);
-    listarPacientes();
+    //pacienteNuevo.eliminarPaciente(id);
+
+    const transaction = DB.transaction(['AppointmentManager'], 'readwrite');
+    const objectStore = transaction.objectStore('AppointmentManager');
+
+    objectStore.delete(id);
+
+    transaction.oncomplete = () => {
+        ui.mostrarAlerta('La cita se ha eliminado correctamente', 'success');
+        listarPacientes();
+    }
+
+    transaction.onerror  = () =>{
+        console.log('Error al eliminar la cita')
+    }
+    
 }
 
 export function editarPacienteBtn(cita){
