@@ -34,7 +34,7 @@ export function crearCita(e){
     const fecha = fechaInput.value;
     const hora = horaInput.value;
     const sintomas = sintomasInput.value;
-    const id = Date.now();
+    let id = Date.now();
     
     // validar campos vacios
     if (nombreMascota === '' || propietario === '' || telefono === '' || fecha === '' || hora === '' || sintomas === '' ){
@@ -46,11 +46,29 @@ export function crearCita(e){
 
     // modo edicion 
     if (modoEdicion){
+        id = idVigente;
+        const pacienteActualizado = { nombreMascota, propietario, telefono, fecha, hora, sintomas, id}
+        
+        
+        
+        // edita la cita en indexDB
+        const transaction = DB.transaction(['AppointmentManager'], 'readwrite');
+        const objectStore = transaction.objectStore('AppointmentManager')
 
-        const pacienteActualizado = { nombreMascota, propietario, telefono, fecha, hora, sintomas,idVigente}
-        pacienteNuevo.editarCita(pacienteActualizado)
-        ui.mostrarAlerta('Se ha editado correctamente', 'success');
-        modoEdicion = false;
+        objectStore.put(pacienteActualizado);
+
+        transaction.oncomplete = () => {
+            ui.mostrarAlerta('Se ha editado correctamente', 'success');
+            modoEdicion = false;
+            
+        
+        }
+
+        transaction.onerror = () => {
+            ui.mostrarAlerta('Error al editar una cita', 'error')
+        }
+        
+        
         
     }else{
         pacienteNuevo.agregarPaciente(paciente)
@@ -65,7 +83,6 @@ export function crearCita(e){
         objectStore.add(paciente);
 
         transaction.oncomplete = function (){
-            console.log('se agrego correctamente')
             ui.mostrarAlerta('Se ha guardado correctamente', 'success');
             
         }
@@ -100,6 +117,7 @@ export function editarPacienteBtn(cita){
 
     //extraemos el id en el objeto de prueba
     idVigente = id;
+    
 
     
     // cambiar el texto del boton de crear cita -> editar cita
@@ -238,7 +256,8 @@ export function listarPacientes(){
             const editarBtn = document.createElement('button');
             editarBtn.classList.add("btn", "btn-outline-primary")
             editarBtn.textContent = 'Editar';
-            editarBtn.onclick= () => editarPacienteBtn();
+            const cita = cursor.value;
+            editarBtn.onclick= () => editarPacienteBtn(cita);
             div.appendChild(editarBtn);
 
             // agregando a la vista
@@ -248,10 +267,6 @@ export function listarPacientes(){
             cursor.continue()
         }
 
-
-        
-
-        
     }
 
     
